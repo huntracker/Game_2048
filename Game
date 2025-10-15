@@ -7,7 +7,7 @@
 <style>
   body {
     display: flex;
-    flex-direction: column;
+    flex-dir: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
@@ -48,7 +48,9 @@
   .tile-512 { background: #ae2012; }
   .tile-1024 { background: #9b2226; }
   .tile-2048 { background: #ff006e; color: #fff; }
-
+span{
+  font-size:30px;
+}
   .controls {
     display: grid;
     grid-template-columns: repeat(3, 60px);
@@ -79,40 +81,40 @@
   
   <div id="game"></div>
   <div class="controls">
-    <button class="up">⬆</button>
-    <button class="left">⬅</button>
-    <button class="right">➡</button>
-    <button class="down">⬇</button>
+    <button class="up"><span>&#8679;</span></button>
+    <button class="left"><span >&#8678;</span></button>
+    <button class="right"><span >&#8680;</span></button>
+    <button class="down"><span >&#8681;</span></button>
   </div>
   <script>
     const size = 4;
     let board = Array.from({ length: size }, () => Array(size).fill(0));
 
     function init() {
-      addRandomTile();
-      render();
+      tileView();
+      tilebox();
     }
 
-    function addRandomTile() {
+    function tileView() {
       let empty = [];
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          if (board[r][c] === 0) empty.push({ r, c });
+      for (let fr = 0; fr < size; fr++) {
+        for (let lt = 0; lt < size; lt++) {
+          if (board[fr][lt] === 0) empty.push({ fr, lt });
         }
       }
       if (empty.length === 0) return;
-      const { r, c } = empty[Math.floor(Math.random() * empty.length)];
-      board[r][c] = 2;
+      const { fr, lt } = empty[Math.floor(Math.random() * empty.length)];
+      board[fr][lt] = 2;
     }
 
-    function render() {
+    function tilebox() {
       const game = document.getElementById('game');
       game.innerHTML = '';
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
+      for (let j = 0; j < size; j++) {
+        for (let i = 0; i < size; i++) {
           const cell = document.createElement('div');
           cell.classList.add('cell');
-          const value = board[r][c];
+          const value = board[j][i];
           if (value !== 0) {
             cell.textContent = value;
             cell.classList.add(`tile-${value}`);
@@ -135,22 +137,22 @@
       return arr;
     }
 
-    function move(direction) {
+    function move(dir) {
       let moved = false;
-      if (direction === 'left') {
+      if (dir === 'left') {
         for (let r = 0; r < size; r++) {
           const newRow = slide(board[r]);
           if (newRow.toString() !== board[r].toString()) moved = true;
           board[r] = newRow;
         }
-      } else if (direction === 'right') {
+      } else if (dir === 'right') {
         for (let r = 0; r < size; r++) {
-          const reversed = [...board[r]].reverse();
-          const newRow = slide(reversed).reverse();
+          const rev = [...board[r]].reverse();
+          const newRow = slide(rev).reverse();
           if (newRow.toString() !== board[r].toString()) moved = true;
           board[r] = newRow;
         }
-      } else if (direction === 'up') {
+      } else if (dir === 'up') {
         for (let c = 0; c < size; c++) {
           let col = board.map(row => row[c]);
           const newCol = slide(col);
@@ -159,7 +161,7 @@
             board[r][c] = newCol[r];
           }
         }
-      } else if (direction === 'down') {
+      } else if (dir === 'down') {
         for (let c = 0; c < size; c++) {
           let col = board.map(row => row[c]).reverse();
           const newCol = slide(col).reverse();
@@ -170,199 +172,8 @@
         }
       }
       if (moved) {
-        addRandomTile();
-        render();
-      }
-    }
-
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft') move('left');
-      if (e.key === 'ArrowRight') move('right');
-      if (e.key === 'ArrowUp') move('up');
-      if (e.key === 'ArrowDown') move('down');
-    });
-
-    document.querySelector('.up').onclick = () => move('up');
-    document.querySelector('.down').onclick = () => move('down');
-    document.querySelector('.left').onclick = () => move('left');
-    document.querySelector('.right').onclick = () => move('right');
-
-    init();
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2048 Dark Puzzle</title>
-<style>
-  body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: #111;
-    color: #fff;
-    font-family: 'Segoe UI', sans-serif;
-  }
-  #game {
-    display: grid;
-    grid-template-columns: repeat(4, 80px);
-    grid-template-rows: repeat(4, 80px);
-    gap: 10px;
-    background: #222;
-    padding: 10px;
-    border-radius: 10px;
-  }
-  .cell {
-    width: 80px;
-    height: 80px;
-    background: #333;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    transition: background 0.3s;
-  }
-  .tile-2 { background: #3a3a3a; color: #eee; }
-  .tile-4 { background: #505050; color: #fff; }
-  .tile-8 { background: #005f73; }
-  .tile-16 { background: #0a9396; }
-  .tile-32 { background: #94d2bd; color: #111; }
-  .tile-64 { background: #ee9b00; color: #111; }
-  .tile-128 { background: #ca6702; }
-  .tile-256 { background: #bb3e03; }
-  .tile-512 { background: #ae2012; }
-  .tile-1024 { background: #9b2226; }
-  .tile-2048 { background: #ff006e; color: #fff; }
-
-  .controls {
-    display: grid;
-    grid-template-columns: repeat(3, 60px);
-    grid-template-rows: repeat(3, 60px);
-    gap: 10px;
-    margin-top: 20px;
-    justify-content: center;
-  }
-  .controls button {
-    background: #444;
-    color: white;
-    font-size: 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .controls button:hover {
-    background: #666;
-  }
-  .up { grid-column: 2; grid-row: 1; }
-  .left { grid-column: 1; grid-row: 2; }
-  .right { grid-column: 3; grid-row: 2; }
-  .down { grid-column: 2; grid-row: 3; }
-</style>
-</head>
-<body>
-  <h1>2048 Dark Puzzle</h1>
-  <div id="game"></div>
-  <div class="controls">
-    <button class="up">⬆️</button>
-    <button class="left">⬅️</button>
-    <button class="right">➡️</button>
-    <button class="down">⬇️</button>
-  </div>
-  <script>
-    const size = 4;
-    let board = Array.from({ length: size }, () => Array(size).fill(0));
-
-    function init() {
-      addRandomTile();
-      render();
-    }
-
-    function addRandomTile() {
-      let empty = [];
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          if (board[r][c] === 0) empty.push({ r, c });
-        }
-      }
-      if (empty.length === 0) return;
-      const { r, c } = empty[Math.floor(Math.random() * empty.length)];
-      board[r][c] = 2;
-    }
-
-    function render() {
-      const game = document.getElementById('game');
-      game.innerHTML = '';
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          const cell = document.createElement('div');
-          cell.classList.add('cell');
-          const value = board[r][c];
-          if (value !== 0) {
-            cell.textContent = value;
-            cell.classList.add(`tile-${value}`);
-          }
-          game.appendChild(cell);
-        }
-      }
-    }
-
-    function slide(row) {
-      let arr = row.filter(v => v);
-      for (let i = 0; i < arr.length - 1; i++) {
-        if (arr[i] === arr[i + 1]) {
-          arr[i] *= 2;
-          arr[i + 1] = 0;
-        }
-      }
-      arr = arr.filter(v => v);
-      while (arr.length < size) arr.push(0);
-      return arr;
-    }
-
-    function move(direction) {
-      let moved = false;
-      if (direction === 'left') {
-        for (let r = 0; r < size; r++) {
-          const newRow = slide(board[r]);
-          if (newRow.toString() !== board[r].toString()) moved = true;
-          board[r] = newRow;
-        }
-      } else if (direction === 'right') {
-        for (let r = 0; r < size; r++) {
-          const reversed = [...board[r]].reverse();
-          const newRow = slide(reversed).reverse();
-          if (newRow.toString() !== board[r].toString()) moved = true;
-          board[r] = newRow;
-        }
-      } else if (direction === 'up') {
-        for (let c = 0; c < size; c++) {
-          let col = board.map(row => row[c]);
-          const newCol = slide(col);
-          for (let r = 0; r < size; r++) {
-            if (board[r][c] !== newCol[r]) moved = true;
-            board[r][c] = newCol[r];
-          }
-        }
-      } else if (direction === 'down') {
-        for (let c = 0; c < size; c++) {
-          let col = board.map(row => row[c]).reverse();
-          const newCol = slide(col).reverse();
-          for (let r = 0; r < size; r++) {
-            if (board[r][c] !== newCol[r]) moved = true;
-            board[r][c] = newCol[r];
-          }
-        }
-      }
-      if (moved) {
-        addRandomTile();
-        render();
+        tileView();
+        tilebox();
       }
     }
 
